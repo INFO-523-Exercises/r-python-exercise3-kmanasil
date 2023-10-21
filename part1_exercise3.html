@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Kristina Manasil">
+
+<title>Classification: Basic Concepts and Techniques</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="part1_exercise3_files/libs/clipboard/clipboard.min.js"></script>
+<script src="part1_exercise3_files/libs/quarto-html/quarto.js"></script>
+<script src="part1_exercise3_files/libs/quarto-html/popper.min.js"></script>
+<script src="part1_exercise3_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="part1_exercise3_files/libs/quarto-html/anchor.min.js"></script>
+<link href="part1_exercise3_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="part1_exercise3_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="part1_exercise3_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="part1_exercise3_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="part1_exercise3_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Classification: Basic Concepts and Techniques</h1>
+<p class="subtitle lead">R Exercise 3 Part 1</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Kristina Manasil </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="classification-basic-concepts-and-techniques" class="level1">
+<h1><strong>Classification: Basic Concepts and Techniques</strong></h1>
+<section id="install-packages" class="level2">
+<h2 class="anchored" data-anchor-id="install-packages"><strong>Install packages</strong></h2>
+<p>Install the packages used in this chapter:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(pacman))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(<span class="st">"pacman"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: pacman</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, rpart, rpart.plot, caret, </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  lattice, FSelector, sampling, pROC, mlbench)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
+<p>Classification is a machine learning task with the goal to learn a predictive function of the form y=f(x),</p>
+<p>where x is called the attribute set and y the class label. The attribute set consists of feature which describe an object. These features can be measured using any scale (i.e., nominal, interval, …). The class label is a nominal attribute. It it is a binary attribute, then the problem is called a binary classification problem.</p>
+<p>Classification learns the classification model from training data where both the features and the correct class label are available. This is why it is called a <a href="https://en.wikipedia.org/wiki/Supervised_learning">supervised learning problem</a>.</p>
+<p>A related supervised learning problem is <a href="https://en.wikipedia.org/wiki/Linear_regression">regression</a>, where y is a number instead of a label. Linear regression is a very popular supervised learning model, however, we will not talk about it here since it is taught in almost any introductory statistics course.</p>
+<p>This chapter will introduce decision trees, model evaluation and comparison, feature selection, and then explore methods to handle the class imbalance problem.</p>
+<p>You can read the free sample chapter from the textbook [@Tan2005]: <a href="https://www-users.cs.umn.edu/~kumar001/dmbook/ch3_classification.pdf">Chapter 3. Classification: Basic Concepts and Techniques</a></p>
+</section>
+<section id="the-zoo-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="the-zoo-dataset"><strong>The Zoo Dataset</strong></h2>
+<p>To demonstrate classification, we will use the Zoo dataset which is included in the R package <strong>mlbench</strong> (you may have to install it). The Zoo dataset containing 17 (mostly logical) variables for 101 animals as a data frame with 17 columns (hair, feathers, eggs, milk, airborne, aquatic, predator, toothed, backbone, breathes, venomous, fins, legs, tail, domestic, catsize, type). The first 16 columns represent the feature vector x and the last column called type is the class label y. We convert the data frame into a tidyverse tibble (optional).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Zoo, <span class="at">package=</span><span class="st">"mlbench"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Zoo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          hair feathers  eggs  milk airborne aquatic predator toothed backbone
+aardvark  TRUE    FALSE FALSE  TRUE    FALSE   FALSE     TRUE    TRUE     TRUE
+antelope  TRUE    FALSE FALSE  TRUE    FALSE   FALSE    FALSE    TRUE     TRUE
+bass     FALSE    FALSE  TRUE FALSE    FALSE    TRUE     TRUE    TRUE     TRUE
+bear      TRUE    FALSE FALSE  TRUE    FALSE   FALSE     TRUE    TRUE     TRUE
+boar      TRUE    FALSE FALSE  TRUE    FALSE   FALSE     TRUE    TRUE     TRUE
+buffalo   TRUE    FALSE FALSE  TRUE    FALSE   FALSE    FALSE    TRUE     TRUE
+         breathes venomous  fins legs  tail domestic catsize   type
+aardvark     TRUE    FALSE FALSE    4 FALSE    FALSE    TRUE mammal
+antelope     TRUE    FALSE FALSE    4  TRUE    FALSE    TRUE mammal
+bass        FALSE    FALSE  TRUE    0  TRUE    FALSE   FALSE   fish
+bear         TRUE    FALSE FALSE    4 FALSE    FALSE    TRUE mammal
+boar         TRUE    FALSE FALSE    4  TRUE    FALSE    TRUE mammal
+buffalo      TRUE    FALSE FALSE    4  TRUE    FALSE    TRUE mammal</code></pre>
+</div>
+</div>
+<p><em>Note:</em>&nbsp;data.frames in R can have row names. The Zoo data set uses the animal name as the row names. tibbles from&nbsp;<code>tidyverse</code>&nbsp;do not support row names. To keep the animal name you can add a column with the animal name.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as_tibble</span>(Zoo, <span class="at">rownames =</span> <span class="st">"animal"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 101 × 18
+   animal  hair  feathers eggs  milk  airborne aquatic predator toothed backbone
+   &lt;chr&gt;   &lt;lgl&gt; &lt;lgl&gt;    &lt;lgl&gt; &lt;lgl&gt; &lt;lgl&gt;    &lt;lgl&gt;   &lt;lgl&gt;    &lt;lgl&gt;   &lt;lgl&gt;   
+ 1 aardva… TRUE  FALSE    FALSE TRUE  FALSE    FALSE   TRUE     TRUE    TRUE    
+ 2 antelo… TRUE  FALSE    FALSE TRUE  FALSE    FALSE   FALSE    TRUE    TRUE    
+ 3 bass    FALSE FALSE    TRUE  FALSE FALSE    TRUE    TRUE     TRUE    TRUE    
+ 4 bear    TRUE  FALSE    FALSE TRUE  FALSE    FALSE   TRUE     TRUE    TRUE    
+ 5 boar    TRUE  FALSE    FALSE TRUE  FALSE    FALSE   TRUE     TRUE    TRUE    
+ 6 buffalo TRUE  FALSE    FALSE TRUE  FALSE    FALSE   FALSE    TRUE    TRUE    
+ 7 calf    TRUE  FALSE    FALSE TRUE  FALSE    FALSE   FALSE    TRUE    TRUE    
+ 8 carp    FALSE FALSE    TRUE  FALSE FALSE    TRUE    FALSE    TRUE    TRUE    
+ 9 catfish FALSE FALSE    TRUE  FALSE FALSE    TRUE    TRUE     TRUE    TRUE    
+10 cavy    TRUE  FALSE    FALSE TRUE  FALSE    FALSE   FALSE    TRUE    TRUE    
+# ℹ 91 more rows
+# ℹ 8 more variables: breathes &lt;lgl&gt;, venomous &lt;lgl&gt;, fins &lt;lgl&gt;, legs &lt;int&gt;,
+#   tail &lt;lgl&gt;, domestic &lt;lgl&gt;, catsize &lt;lgl&gt;, type &lt;fct&gt;</code></pre>
+</div>
+</div>
+<p>You will have to remove the animal column before learning a model! In the following I use the data.frame.</p>
+<p>I translate all the TRUE/FALSE values into factors (nominal). This is often needed for building models. Always check <code>summary()</code> to make sure the data is ready for model learning.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># change the logical or boolean variables to factor levels</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Zoo <span class="ot">&lt;-</span> Zoo <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.logical), factor, <span class="at">levels =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.character), factor))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `mutate()`.
+ℹ In argument: `across(where(is.logical), factor, levels = c(TRUE, FALSE))`.
+Caused by warning:
+! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+Supply arguments directly to `.fns` through an anonymous function instead.
+
+  # Previously
+  across(a:b, mean, na.rm = TRUE)
+
+  # Now
+  across(a:b, \(x) mean(x, na.rm = TRUE))</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># always check data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Zoo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    hair     feathers     eggs       milk     airborne   aquatic    predator 
+ TRUE :43   TRUE :20   TRUE :59   TRUE :41   TRUE :24   TRUE :36   TRUE :56  
+ FALSE:58   FALSE:81   FALSE:42   FALSE:60   FALSE:77   FALSE:65   FALSE:45  
+                                                                             
+                                                                             
+                                                                             
+                                                                             
+                                                                             
+  toothed    backbone   breathes   venomous     fins         legs      
+ TRUE :61   TRUE :83   TRUE :80   TRUE : 8   TRUE :17   Min.   :0.000  
+ FALSE:40   FALSE:18   FALSE:21   FALSE:93   FALSE:84   1st Qu.:2.000  
+                                                        Median :4.000  
+                                                        Mean   :2.842  
+                                                        3rd Qu.:4.000  
+                                                        Max.   :8.000  
+                                                                       
+    tail     domestic   catsize              type   
+ TRUE :75   TRUE :13   TRUE :44   mammal       :41  
+ FALSE:26   FALSE:88   FALSE:57   bird         :20  
+                                  reptile      : 5  
+                                  fish         :13  
+                                  amphibian    : 4  
+                                  insect       : 8  
+                                  mollusc.et.al:10  </code></pre>
+</div>
+</div>
+</section>
+<section id="decision-trees" class="level2">
+<h2 class="anchored" data-anchor-id="decision-trees"><strong>Decision Trees</strong></h2>
+<p>Recursive Partitioning (similar to CART) uses the Gini index to make splitting decisions and early stopping (pre-pruning).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rpart)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="create-tree-with-default-settings-uses-pre-pruning" class="level3">
+<h3 class="anchored" data-anchor-id="create-tree-with-default-settings-uses-pre-pruning"><strong>Create Tree With Default Settings (uses pre-pruning)</strong></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tree_default <span class="ot">&lt;-</span> Zoo <span class="sc">|&gt;</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rpart</span>(type <span class="sc">~</span> ., <span class="at">data =</span> _)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>tree_default</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>n= 101 
+
+node), split, n, loss, yval, (yprob)
+      * denotes terminal node
+
+ 1) root 101 60 mammal (0.41 0.2 0.05 0.13 0.04 0.079 0.099)  
+   2) milk=TRUE 41  0 mammal (1 0 0 0 0 0 0) *
+   3) milk=FALSE 60 40 bird (0 0.33 0.083 0.22 0.067 0.13 0.17)  
+     6) feathers=TRUE 20  0 bird (0 1 0 0 0 0 0) *
+     7) feathers=FALSE 40 27 fish (0 0 0.12 0.32 0.1 0.2 0.25)  
+      14) fins=TRUE 13  0 fish (0 0 0 1 0 0 0) *
+      15) fins=FALSE 27 17 mollusc.et.al (0 0 0.19 0 0.15 0.3 0.37)  
+        30) backbone=TRUE 9  4 reptile (0 0 0.56 0 0.44 0 0) *
+        31) backbone=FALSE 18  8 mollusc.et.al (0 0 0 0 0 0.44 0.56) *</code></pre>
+</div>
+</div>
+<p>I find this hard to read. Where are 4,5 and 8,9,10,11,12,13 and so?</p>
+<p><strong>Notes:</strong></p>
+<ul>
+<li><p><code>|&gt;</code> supplies the data for <code>rpart</code>. Since <code>data</code> is not the first argument of <code>rpart</code>, the syntax <code>data = _</code> is used to specify where the data in <code>Zoo</code> goes. The call is equivalent to <code>tree_default &lt;- rpart(type ~ ., data = Zoo)</code>.</p></li>
+<li><p>The formula models the <code>type</code> variable by all other features is represented by <code>.</code>.</p></li>
+<li><p>the class variable needs a factor (nominal) or rpart will create a regression tree instead of a decision tree. Use <code>as.factor()</code> if necessary</p>
+<p>Plotting</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rpart.plot)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(tree_default, <span class="at">extra =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>I find this easier to understand than the table.</p>
+<p><em>Note:</em>&nbsp;<code>extra=2</code>&nbsp;prints for each leaf node the number of correctly classified objects from data and the total number of objects from the training data falling into that node (correct/total).</p>
+</section>
+<section id="create-a-full-tree" class="level3">
+<h3 class="anchored" data-anchor-id="create-a-full-tree"><strong>Create a Full Tree</strong></h3>
+<p>To create a full tree, we set the complexity parameter cp to 0 (split even if it does not improve the tree) and we set the minimum number of observations in a node needed to split to the smallest value of 2 (see: <code>?rpart.control</code>). <em>Note:</em> full trees overfit the training data!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>tree_full <span class="ot">&lt;-</span> Zoo <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rpart</span>(type <span class="sc">~</span> . , <span class="at">data =</span> _, </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">minsplit =</span> <span class="dv">2</span>, <span class="at">cp =</span> <span class="dv">0</span>))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(tree_full, <span class="at">extra =</span> <span class="dv">2</span>, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">roundint=</span><span class="cn">FALSE</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">box.palette =</span> <span class="fu">list</span>(<span class="st">"Gy"</span>, <span class="st">"Gn"</span>, <span class="st">"Bu"</span>, <span class="st">"Bn"</span>, </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"Or"</span>, <span class="st">"Rd"</span>, <span class="st">"Pu"</span>)) <span class="co"># specify 7 colors</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>tree_full</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>n= 101 
+
+node), split, n, loss, yval, (yprob)
+      * denotes terminal node
+
+  1) root 101 60 mammal (0.41 0.2 0.05 0.13 0.04 0.079 0.099)  
+    2) milk=TRUE 41  0 mammal (1 0 0 0 0 0 0) *
+    3) milk=FALSE 60 40 bird (0 0.33 0.083 0.22 0.067 0.13 0.17)  
+      6) feathers=TRUE 20  0 bird (0 1 0 0 0 0 0) *
+      7) feathers=FALSE 40 27 fish (0 0 0.12 0.32 0.1 0.2 0.25)  
+       14) fins=TRUE 13  0 fish (0 0 0 1 0 0 0) *
+       15) fins=FALSE 27 17 mollusc.et.al (0 0 0.19 0 0.15 0.3 0.37)  
+         30) backbone=TRUE 9  4 reptile (0 0 0.56 0 0.44 0 0)  
+           60) aquatic=FALSE 4  0 reptile (0 0 1 0 0 0 0) *
+           61) aquatic=TRUE 5  1 amphibian (0 0 0.2 0 0.8 0 0)  
+            122) eggs=FALSE 1  0 reptile (0 0 1 0 0 0 0) *
+            123) eggs=TRUE 4  0 amphibian (0 0 0 0 1 0 0) *
+         31) backbone=FALSE 18  8 mollusc.et.al (0 0 0 0 0 0.44 0.56)  
+           62) airborne=TRUE 6  0 insect (0 0 0 0 0 1 0) *
+           63) airborne=FALSE 12  2 mollusc.et.al (0 0 0 0 0 0.17 0.83)  
+            126) predator=FALSE 4  2 insect (0 0 0 0 0 0.5 0.5)  
+              252) legs&gt;=3 2  0 insect (0 0 0 0 0 1 0) *
+              253) legs&lt; 3 2  0 mollusc.et.al (0 0 0 0 0 0 1) *
+            127) predator=TRUE 8  0 mollusc.et.al (0 0 0 0 0 0 1) *</code></pre>
+</div>
+</div>
+<p>Training error on tree with pre-pruning</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(tree_default, Zoo) <span class="sc">|&gt;</span> <span class="fu">head</span> ()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         mammal bird reptile fish amphibian insect mollusc.et.al
+aardvark      1    0       0    0         0      0             0
+antelope      1    0       0    0         0      0             0
+bass          0    0       0    1         0      0             0
+bear          1    0       0    0         0      0             0
+boar          1    0       0    0         0      0             0
+buffalo       1    0       0    0         0      0             0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(tree_default, Zoo, <span class="at">type=</span><span class="st">"class"</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>aardvark antelope     bass     bear     boar  buffalo 
+  mammal   mammal     fish   mammal   mammal   mammal 
+Levels: mammal bird reptile fish amphibian insect mollusc.et.al</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>confusion_table <span class="ot">&lt;-</span> <span class="fu">with</span>(Zoo, <span class="fu">table</span>(type, pred))</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>confusion_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               pred
+type            mammal bird reptile fish amphibian insect mollusc.et.al
+  mammal            41    0       0    0         0      0             0
+  bird               0   20       0    0         0      0             0
+  reptile            0    0       5    0         0      0             0
+  fish               0    0       0   13         0      0             0
+  amphibian          0    0       4    0         0      0             0
+  insect             0    0       0    0         0      0             8
+  mollusc.et.al      0    0       0    0         0      0            10</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># number of correctly predicted</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>correct <span class="ot">&lt;-</span> confusion_table <span class="sc">|&gt;</span> <span class="fu">diag</span>() <span class="sc">|&gt;</span> <span class="fu">sum</span>()</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>correct</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 89</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># number of false predictions</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>error <span class="ot">&lt;-</span> confusion_table <span class="sc">|&gt;</span> <span class="fu">sum</span>() <span class="sc">-</span> correct</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>error</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 12</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the precent of accuract classified objects</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> correct <span class="sc">/</span> (correct <span class="sc">+</span> error)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>accuracy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8811881</code></pre>
+</div>
+</div>
+<p>Use a function for accuracy</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function that shows accuracy without manually finding and saving pred, error, and accuracy separately</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> <span class="cf">function</span>(truth, prediction) {</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    tbl <span class="ot">&lt;-</span> <span class="fu">table</span>(truth, prediction)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(<span class="fu">diag</span>(tbl))<span class="sc">/</span><span class="fu">sum</span>(tbl)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">accuracy</span>(Zoo <span class="sc">|&gt;</span> <span class="fu">pull</span>(type), pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8811881</code></pre>
+</div>
+</div>
+<p>Training error of the full tree</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">accuracy</span>(Zoo <span class="sc">|&gt;</span> <span class="fu">pull</span>(type), </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">predict</span>(tree_full, Zoo, <span class="at">type =</span> <span class="st">"class"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+<p>Get a confusion table with more statistics (using caret)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(<span class="at">data =</span> pred, </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">reference =</span> Zoo <span class="sc">|&gt;</span> <span class="fu">pull</span>(type))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+               Reference
+Prediction      mammal bird reptile fish amphibian insect mollusc.et.al
+  mammal            41    0       0    0         0      0             0
+  bird               0   20       0    0         0      0             0
+  reptile            0    0       5    0         4      0             0
+  fish               0    0       0   13         0      0             0
+  amphibian          0    0       0    0         0      0             0
+  insect             0    0       0    0         0      0             0
+  mollusc.et.al      0    0       0    0         0      8            10
+
+Overall Statistics
+                                          
+               Accuracy : 0.8812          
+                 95% CI : (0.8017, 0.9371)
+    No Information Rate : 0.4059          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.8431          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: mammal Class: bird Class: reptile Class: fish
+Sensitivity                 1.0000       1.000        1.00000      1.0000
+Specificity                 1.0000       1.000        0.95833      1.0000
+Pos Pred Value              1.0000       1.000        0.55556      1.0000
+Neg Pred Value              1.0000       1.000        1.00000      1.0000
+Prevalence                  0.4059       0.198        0.04950      0.1287
+Detection Rate              0.4059       0.198        0.04950      0.1287
+Detection Prevalence        0.4059       0.198        0.08911      0.1287
+Balanced Accuracy           1.0000       1.000        0.97917      1.0000
+                     Class: amphibian Class: insect Class: mollusc.et.al
+Sensitivity                    0.0000       0.00000              1.00000
+Specificity                    1.0000       1.00000              0.91209
+Pos Pred Value                    NaN           NaN              0.55556
+Neg Pred Value                 0.9604       0.92079              1.00000
+Prevalence                     0.0396       0.07921              0.09901
+Detection Rate                 0.0000       0.00000              0.09901
+Detection Prevalence           0.0000       0.00000              0.17822
+Balanced Accuracy              0.5000       0.50000              0.95604</code></pre>
+</div>
+</div>
+<p>A more detailed view of predictions</p>
+</section>
+<section id="make-predictions-for-new-data" class="level3">
+<h3 class="anchored" data-anchor-id="make-predictions-for-new-data"><strong>Make Predictions for New Data</strong></h3>
+<p>Make up my own animal: A lion with feathered wings</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>my_animal <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">hair =</span> <span class="cn">TRUE</span>, <span class="at">feathers =</span> <span class="cn">TRUE</span>, <span class="at">eggs =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">milk =</span> <span class="cn">TRUE</span>, <span class="at">airborne =</span> <span class="cn">TRUE</span>, <span class="at">aquatic =</span> <span class="cn">FALSE</span>, <span class="at">predator =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">toothed =</span> <span class="cn">TRUE</span>, <span class="at">backbone =</span> <span class="cn">TRUE</span>, <span class="at">breathes =</span> <span class="cn">TRUE</span>, <span class="at">venomous =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">fins =</span> <span class="cn">FALSE</span>, <span class="at">legs =</span> <span class="dv">4</span>, <span class="at">tail =</span> <span class="cn">TRUE</span>, <span class="at">domestic =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">catsize =</span> <span class="cn">FALSE</span>, <span class="at">type =</span> <span class="cn">NA</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Fix columns to be factors like in the training set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>my_animal <span class="ot">&lt;-</span> my_animal <span class="sc">|&gt;</span> </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.logical), factor, <span class="at">levels =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>)))</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>my_animal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 17
+  hair  feathers eggs  milk  airborne aquatic predator toothed backbone breathes
+  &lt;fct&gt; &lt;fct&gt;    &lt;fct&gt; &lt;fct&gt; &lt;fct&gt;    &lt;fct&gt;   &lt;fct&gt;    &lt;fct&gt;   &lt;fct&gt;    &lt;fct&gt;   
+1 TRUE  TRUE     FALSE TRUE  TRUE     FALSE   TRUE     TRUE    TRUE     TRUE    
+# ℹ 7 more variables: venomous &lt;fct&gt;, fins &lt;fct&gt;, legs &lt;dbl&gt;, tail &lt;fct&gt;,
+#   domestic &lt;fct&gt;, catsize &lt;fct&gt;, type &lt;fct&gt;</code></pre>
+</div>
+</div>
+<p>Make a prediction using the default tree</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(tree_default , my_animal, <span class="at">type =</span> <span class="st">"class"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     1 
+mammal 
+Levels: mammal bird reptile fish amphibian insect mollusc.et.al</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="model-evaluation-with-caret" class="level2">
+<h2 class="anchored" data-anchor-id="model-evaluation-with-caret"><strong>Model Evaluation with Caret</strong></h2>
+<p>The package <a href="https://topepo.github.io/caret/"><code>caret</code></a> makes preparing training sets, building classification (and regression) models and evaluation easier. A great cheat sheet can be found <a href="https://ugoproto.github.io/ugo_r_doc/pdf/caret.pdf">here</a>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Cross-validation runs are independent and can be done faster in parallel. To enable multi-core support,&nbsp;<code>caret</code>&nbsp;uses the package&nbsp;<code>foreach</code>&nbsp;and you need to load a&nbsp;<code>do</code>&nbsp;backend. For Linux, you can use&nbsp;<code>doMC</code>&nbsp;with 4 cores. Windows needs different backend like&nbsp;<code>doParallel</code>&nbsp;(see&nbsp;<code>caret</code>&nbsp;cheat sheet above).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows backend</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: foreach</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'foreach'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:purrr':
+
+    accumulate, when</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: iterators</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: parallel</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="fu">makeCluster</span>(<span class="dv">4</span>, <span class="at">type=</span><span class="st">"SOCK"</span>)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">registerDoParallel</span>(cl)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="co"># had to install doParallel and snow to make this work</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Set random number generator seed to make results reproducible</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="hold-out-test-data" class="level3">
+<h3 class="anchored" data-anchor-id="hold-out-test-data"><strong>Hold out Test Data</strong></h3>
+<p>Test data is not used in the model building process and set aside purely for testing the model. Here, we partition data the 80% training and 20% testing.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>inTrain <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(<span class="at">y =</span> Zoo<span class="sc">$</span>type, <span class="at">p =</span> .<span class="dv">8</span>, <span class="at">list =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>Zoo_train <span class="ot">&lt;-</span> Zoo <span class="sc">|&gt;</span> <span class="fu">slice</span>(inTrain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Slicing with a 1-column matrix was deprecated in dplyr 1.1.0.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>Zoo_test <span class="ot">&lt;-</span> Zoo <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="sc">-</span>inTrain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="learn-a-model-and-tune-hyperparameters-on-the-training-data" class="level3">
+<h3 class="anchored" data-anchor-id="learn-a-model-and-tune-hyperparameters-on-the-training-data"><strong>Learn a Model and Tune Hyperparameters on the Training Data</strong></h3>
+<p>The package <code>caret</code> combines training and validation for hyperparameter tuning into a single function called <code>train()</code>. It internally splits the data into training and validation sets and thus will provide you with error estimates for different hyperparameter settings. <code>trainControl</code> is used to choose how testing is performed.</p>
+<p>For rpart, train tries to tune the <code>cp</code> parameter (tree complexity) using accuracy to chose the best model. I set <code>minsplit</code> to 2 since we have not much data. <strong>Note:</strong> Parameters used for tuning (in this case <code>cp</code>) need to be set using a data.frame in the argument <code>tuneGrid</code>! Setting it in control will be ignored.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(type <span class="sc">~</span> .,</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> _ ,</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">minsplit =</span> <span class="dv">2</span>),</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>, <span class="at">number =</span> <span class="dv">10</span>),</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">tuneLength =</span> <span class="dv">5</span>)</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CART 
+
+83 samples
+16 predictors
+ 7 classes: 'mammal', 'bird', 'reptile', 'fish', 'amphibian', 'insect', 'mollusc.et.al' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 77, 74, 75, 73, 74, 76, ... 
+Resampling results across tuning parameters:
+
+  cp    Accuracy   Kappa    
+  0.00  0.9384921  0.9188571
+  0.08  0.8973810  0.8681837
+  0.16  0.7447619  0.6637060
+  0.22  0.6663095  0.5540490
+  0.32  0.4735317  0.1900043
+
+Accuracy was used to select the optimal model using the largest value.
+The final value used for the model was cp = 0.</code></pre>
+</div>
+</div>
+<p><strong>Note:</strong> Train has built 10 trees using the training folds for each value of <code>cp</code> and the reported values for accuracy and Kappa are the averages on the validation folds.</p>
+<p>A model using the best tuning parameters and using all the data supplied to <code>train()</code> is available as <code>fit$finalModel</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(fit<span class="sc">$</span>finalModel, <span class="at">extra =</span> <span class="dv">2</span>,</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">box.palette =</span> <span class="fu">list</span>(<span class="st">"Gy"</span>, <span class="st">"Gn"</span>, <span class="st">"Bu"</span>, <span class="st">"Bn"</span>, <span class="st">"Or"</span>, <span class="st">"Rd"</span>, <span class="st">"Pu"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>caret also computes variable importance. By default it uses competing splits (splits which would be runners up, but do not get chosen by the tree) for rpart models (see&nbsp;<code>? varImp</code>). Toothed is the runner up for many splits, but it never gets chosen!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">varImp</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rpart variable importance
+
+              Overall
+toothedFALSE  100.000
+feathersFALSE  69.814
+backboneFALSE  63.084
+milkFALSE      55.555
+eggsFALSE      53.614
+hairFALSE      50.518
+finsFALSE      46.984
+tailFALSE      28.447
+breathesFALSE  28.128
+airborneFALSE  26.272
+legs           25.859
+aquaticFALSE    5.960
+predatorFALSE   2.349
+venomousFALSE   1.387
+catsizeFALSE    0.000
+domesticFALSE   0.000</code></pre>
+</div>
+</div>
+<p>Here is the variable importance without competing splits.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>imp <span class="ot">&lt;-</span> <span class="fu">varImp</span>(fit, <span class="at">compete =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>imp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rpart variable importance
+
+              Overall
+milkFALSE     100.000
+feathersFALSE  55.694
+finsFALSE      39.453
+toothedFALSE   22.956
+airborneFALSE  22.478
+aquaticFALSE    9.987
+eggsFALSE       6.658
+legs            5.549
+predatorFALSE   1.850
+domesticFALSE   0.000
+breathesFALSE   0.000
+catsizeFALSE    0.000
+tailFALSE       0.000
+hairFALSE       0.000
+backboneFALSE   0.000
+venomousFALSE   0.000</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(imp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>Note:</strong>&nbsp;Not all models provide a variable importance function. In this case caret might calculate the variable importance by itself and ignore the model (see&nbsp;<code>? varImp</code>)!</p>
+</section>
+</section>
+<section id="testing-confusion-matrix-and-confidence-interval-for-accuracy" class="level2">
+<h2 class="anchored" data-anchor-id="testing-confusion-matrix-and-confidence-interval-for-accuracy"><strong>Testing: Confusion Matrix and Confidence Interval for Accuracy</strong></h2>
+<p>Use the best model on the test data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">newdata =</span> Zoo_test)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>pred</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] mammal        mammal        mollusc.et.al insect        mammal       
+ [6] mammal        mammal        bird          mammal        mammal       
+[11] bird          fish          fish          mammal        mollusc.et.al
+[16] bird          insect        bird         
+Levels: mammal bird reptile fish amphibian insect mollusc.et.al</code></pre>
+</div>
+</div>
+<p>Caret’s <code>confusionMatrix()</code> function calculates accuracy, confidence intervals, kappa and many more evaluation metrics. You need to use separate test data to create a confusion matrix based on the generalization error.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(<span class="at">data =</span> pred, </span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">ref =</span> Zoo_test <span class="sc">|&gt;</span> <span class="fu">pull</span>(type))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+               Reference
+Prediction      mammal bird reptile fish amphibian insect mollusc.et.al
+  mammal             8    0       0    0         0      0             0
+  bird               0    4       0    0         0      0             0
+  reptile            0    0       0    0         0      0             0
+  fish               0    0       0    2         0      0             0
+  amphibian          0    0       0    0         0      0             0
+  insect             0    0       1    0         0      1             0
+  mollusc.et.al      0    0       0    0         0      0             2
+
+Overall Statistics
+                                          
+               Accuracy : 0.9444          
+                 95% CI : (0.7271, 0.9986)
+    No Information Rate : 0.4444          
+    P-Value [Acc &gt; NIR] : 1.076e-05       
+                                          
+                  Kappa : 0.9231          
+                                          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: mammal Class: bird Class: reptile Class: fish
+Sensitivity                 1.0000      1.0000        0.00000      1.0000
+Specificity                 1.0000      1.0000        1.00000      1.0000
+Pos Pred Value              1.0000      1.0000            NaN      1.0000
+Neg Pred Value              1.0000      1.0000        0.94444      1.0000
+Prevalence                  0.4444      0.2222        0.05556      0.1111
+Detection Rate              0.4444      0.2222        0.00000      0.1111
+Detection Prevalence        0.4444      0.2222        0.00000      0.1111
+Balanced Accuracy           1.0000      1.0000        0.50000      1.0000
+                     Class: amphibian Class: insect Class: mollusc.et.al
+Sensitivity                        NA       1.00000               1.0000
+Specificity                         1       0.94118               1.0000
+Pos Pred Value                     NA       0.50000               1.0000
+Neg Pred Value                     NA       1.00000               1.0000
+Prevalence                          0       0.05556               0.1111
+Detection Rate                      0       0.05556               0.1111
+Detection Prevalence                0       0.11111               0.1111
+Balanced Accuracy                  NA       0.97059               1.0000</code></pre>
+</div>
+</div>
+<p><strong>Some notes</strong></p>
+<ul>
+<li><p>Many classification algorithms and <code>train</code> in caret do not deal well with missing values. If your classification model can deal with missing values (e.g., <code>rpart</code>) then use <code>na.action = na.pass</code> when you call <code>train</code> and <code>predict</code>. Otherwise, you need to remove observations with missing values with <code>na.omit</code> or use imputation to replace the missing values before you train the model. Make sure that you still have enough observations left.</p></li>
+<li><p>Make sure that nominal variables (this includes logical variables) are coded as factors.</p></li>
+<li><p>The class variable for train in caret cannot have level names that are keywords in R (e.g., <code>TRUE</code> and <code>FALSE</code>). Rename them to, for example, “yes” and “no.”</p></li>
+<li><p>Make sure that nominal variables (factors) have examples for all possible values. Some methods might have problems with variable values without examples. You can drop empty levels using <code>droplevels</code> or <code>factor</code>.</p></li>
+<li><p>Sampling in train might create a sample that does not contain examples for all values in a nominal (factor) variable. You will get an error message. This most likely happens for variables which have one very rare value. You may have to remove the variable.</p></li>
+</ul>
+</section>
+<section id="model-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="model-comparison"><strong>Model Comparison</strong></h2>
+<p>We will compare decision trees with a k-nearest neighbors (kNN) classifier. We will create fixed sampling scheme (10-folds) so we compare the different models using exactly the same folds. It is specified as <code>trControl</code> during training.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>train_index <span class="ot">&lt;-</span> <span class="fu">createFolds</span>(Zoo_train<span class="sc">$</span>type, <span class="at">k =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Build models</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>rpartFit <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span> </span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(type <span class="sc">~</span> .,</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _,</span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">tuneLength =</span> <span class="dv">10</span>,</span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>, <span class="at">indexOut =</span> train_index)</span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Note:</strong>&nbsp;for kNN we ask&nbsp;<code>train</code>&nbsp;to scale the data using&nbsp;<code>preProcess = "scale"</code>. Logicals will be used as 0-1 variables in Euclidean distance calculation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>knnFit <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span> </span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(type <span class="sc">~</span> .,</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _,</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"knn"</span>,</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">preProcess =</span> <span class="st">"scale"</span>,</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">tuneLength =</span> <span class="dv">10</span>,</span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>, <span class="at">indexOut =</span> train_index)</span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Compare accuracy over all folds.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>resamps <span class="ot">&lt;-</span> <span class="fu">resamples</span>(<span class="fu">list</span>(</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">CART =</span> rpartFit,</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">kNearestNeighbors =</span> knnFit</span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>        ))</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(resamps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+summary.resamples(object = resamps)
+
+Models: CART, kNearestNeighbors 
+Number of resamples: 10 
+
+Accuracy 
+                       Min.   1st Qu.    Median      Mean   3rd Qu. Max. NA's
+CART              0.6666667 0.8750000 0.8888889 0.8722222 0.8888889    1    0
+kNearestNeighbors 0.8750000 0.9166667 1.0000000 0.9652778 1.0000000    1    0
+
+Kappa 
+                       Min.   1st Qu.    Median      Mean   3rd Qu. Max. NA's
+CART              0.5909091 0.8333333 0.8474576 0.8341866 0.8570312    1    0
+kNearestNeighbors 0.8333333 0.8977273 1.0000000 0.9546970 1.0000000    1    0</code></pre>
+</div>
+</div>
+<p><code>caret</code>&nbsp;provides some visualizations using the package&nbsp;<code>lattice</code>. For example, a boxplot to compare the accuracy and kappa distribution (over the 10 folds).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bwplot</span>(resamps, <span class="at">layout =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We see that kNN is performing consistently better on the folds than CART (except for some outlier folds).</p>
+<p>Find out if one models is statistically better than the other (is the difference in accuracy is not zero).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>difs <span class="ot">&lt;-</span> <span class="fu">diff</span>(resamps)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>difs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+diff.resamples(x = resamps)
+
+Models: CART, kNearestNeighbors 
+Metrics: Accuracy, Kappa 
+Number of differences: 1 
+p-value adjustment: bonferroni </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(difs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+summary.diff.resamples(object = difs)
+
+p-value adjustment: bonferroni 
+Upper diagonal: estimates of the difference
+Lower diagonal: p-value for H0: difference = 0
+
+Accuracy 
+                  CART    kNearestNeighbors
+CART                      -0.09306         
+kNearestNeighbors 0.01151                  
+
+Kappa 
+                  CART   kNearestNeighbors
+CART                     -0.1205          
+kNearestNeighbors 0.0104                  </code></pre>
+</div>
+</div>
+<p>p-values tells you the probability of seeing an even more extreme value (difference between accuracy) given that the null hypothesis (difference = 0) is true. For a better classifier, the p-value should be less than .05 or 0.01. <code>diff</code> automatically applies Bonferroni correction for multiple comparisons. In this case, kNN seems better but the classifiers do not perform statistically differently.</p>
+</section>
+<section id="feature-selection-and-feature-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="feature-selection-and-feature-preparation"><strong>Feature Selection and Feature Preparation</strong></h2>
+<p>Decision trees implicitly select features for splitting, but we can also select features manually.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(FSelector)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>see: <a href="http://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Dimensionality_Reduction/Feature_Selection#The_Feature_Ranking_Approach" class="uri">http://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Dimensionality_Reduction/Feature_Selection#The_Feature_Ranking_Approach</a></p>
+<section id="univariate-feature-importance-score" class="level3">
+<h3 class="anchored" data-anchor-id="univariate-feature-importance-score"><strong>Univariate Feature Importance Score</strong></h3>
+<p>These scores measure how related each feature is to the class variable. For discrete features (as in our case), the chi-square statistic can be used to derive a score.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span> </span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">chi.squared</span>(type <span class="sc">~</span> ., <span class="at">data =</span> _) <span class="sc">|&gt;</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"feature"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(attr_importance))</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>weights</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 2
+   feature  attr_importance
+   &lt;chr&gt;              &lt;dbl&gt;
+ 1 feathers           1    
+ 2 milk               1    
+ 3 backbone           1    
+ 4 toothed            0.975
+ 5 eggs               0.933
+ 6 hair               0.907
+ 7 breathes           0.898
+ 8 airborne           0.848
+ 9 fins               0.845
+10 legs               0.828
+11 tail               0.779
+12 catsize            0.664
+13 aquatic            0.655
+14 venomous           0.475
+15 predator           0.385
+16 domestic           0.231</code></pre>
+</div>
+</div>
+<p>plot importance in descending order (using&nbsp;<code>reorder</code>&nbsp;to order factor levels used by&nbsp;<code>ggplot</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(weights,</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> attr_importance, <span class="at">y =</span> <span class="fu">reorder</span>(feature, attr_importance))) <span class="sc">+</span></span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Importance score"</span>) <span class="sc">+</span> </span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Feature"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Get the 5 best features</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>subset <span class="ot">&lt;-</span> <span class="fu">cutoff.k</span>(weights <span class="sc">|&gt;</span> </span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">column_to_rownames</span>(<span class="st">"feature"</span>), <span class="dv">5</span>)</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>subset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "feathers" "milk"     "backbone" "toothed"  "eggs"    </code></pre>
+</div>
+</div>
+<p>Use only the best 5 features to build a model (<code>Fselector</code>&nbsp;provides&nbsp;<code>as.simple.formula</code>)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">as.simple.formula</span>(subset, <span class="st">"type"</span>)</span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>f</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>type ~ feathers + milk + backbone + toothed + eggs
+&lt;environment: 0x000001f161a58000&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span> <span class="fu">rpart</span>(f, <span class="at">data =</span> _)</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(m, <span class="at">extra =</span> <span class="dv">2</span>, <span class="at">roundint =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There are many alternative ways to calculate univariate importance scores (see package FSelector). Some of them (also) work for continuous features. One example is the information gain ratio based on entropy as used in decision tree induction.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>Zoo_train <span class="sc">|&gt;</span> </span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gain.ratio</span>(type <span class="sc">~</span> ., <span class="at">data =</span> _) <span class="sc">|&gt;</span></span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"feature"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(attr_importance))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 2
+   feature  attr_importance
+   &lt;chr&gt;              &lt;dbl&gt;
+ 1 milk              1     
+ 2 backbone          1     
+ 3 feathers          1     
+ 4 toothed           0.919 
+ 5 eggs              0.827 
+ 6 breathes          0.821 
+ 7 hair              0.782 
+ 8 fins              0.689 
+ 9 legs              0.682 
+10 airborne          0.671 
+11 tail              0.573 
+12 aquatic           0.391 
+13 catsize           0.383 
+14 venomous          0.351 
+15 predator          0.125 
+16 domestic          0.0975</code></pre>
+</div>
+</div>
+</section>
+<section id="feature-subset-selection" class="level3">
+<h3 class="anchored" data-anchor-id="feature-subset-selection"><strong>Feature Subset Selection</strong></h3>
+<p>Often features are related and calculating importance for each feature independently is not optimal. We can use greedy search heuristics. For example <code>cfs</code> uses correlation/entropy with best first search.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>Zoo_train <span class="sc">|&gt;</span> </span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cfs</span>(type <span class="sc">~</span> ., <span class="at">data =</span> _)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "hair"     "feathers" "eggs"     "milk"     "toothed"  "backbone"
+ [7] "breathes" "fins"     "legs"     "tail"    </code></pre>
+</div>
+</div>
+<p>Black-box feature selection uses an evaluator function (the black box) to calculate a score to be maximized. First, we define an evaluation function that builds a model given a subset of features and calculates a quality score. We use here the average for 5 bootstrap samples (<code>method = "cv"</code>&nbsp;can also be used instead), no tuning (to be faster), and the average accuracy as the score.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>evaluator <span class="ot">&lt;-</span> <span class="cf">function</span>(subset) {</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span> </span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">train</span>(<span class="fu">as.simple.formula</span>(subset, <span class="st">"type"</span>),</span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> _,</span>
+<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"boot"</span>, <span class="at">number =</span> <span class="dv">5</span>),</span>
+<span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">tuneLength =</span> <span class="dv">0</span>)</span>
+<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> model<span class="sc">$</span>resample<span class="sc">$</span>Accuracy</span>
+<span id="cb89-9"><a href="#cb89-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Trying features:"</span>, <span class="fu">paste</span>(subset, <span class="at">collapse =</span> <span class="st">" + "</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb89-10"><a href="#cb89-10" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">mean</span>(results)</span>
+<span id="cb89-11"><a href="#cb89-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Accuracy:"</span>, <span class="fu">round</span>(m, <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>)</span>
+<span id="cb89-12"><a href="#cb89-12" aria-hidden="true" tabindex="-1"></a>  m</span>
+<span id="cb89-13"><a href="#cb89-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Start with all features (but not the class variable&nbsp;<code>type</code>)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>features <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span> <span class="fu">colnames</span>() <span class="sc">|&gt;</span> <span class="fu">setdiff</span>(<span class="st">"type"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>There are several (greedy) search strategies available. These run for a while!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>subset <span class="ot">&lt;-</span> <span class="fu">backward.search</span>(features, evaluator)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.55 
+
+Trying features: feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.49 
+
+Trying features: hair + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.45 
+
+Trying features: hair + feathers + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.39 
+
+Trying features: hair + feathers + eggs + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.47 
+
+Trying features: hair + feathers + eggs + milk + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.52 
+
+Trying features: hair + feathers + eggs + milk + airborne + predator + toothed + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.48 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + toothed + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.48 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + backbone + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.47 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + breathes + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.5 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + venomous + fins + legs + tail + domestic + catsize 
+Accuracy: 0.47 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + fins + legs + tail + domestic + catsize 
+Accuracy: 0.48 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + legs + tail + domestic + catsize 
+Accuracy: 0.46 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + tail + domestic + catsize 
+Accuracy: 0.44 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + domestic + catsize 
+Accuracy: 0.47 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + tail + catsize 
+Accuracy: 0.5 
+
+Trying features: hair + feathers + eggs + milk + airborne + aquatic + predator + toothed + backbone + breathes + venomous + fins + legs + tail + domestic 
+Accuracy: 0.45 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>subset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "hair"     "feathers" "eggs"     "milk"     "airborne" "aquatic" 
+ [7] "predator" "toothed"  "backbone" "breathes" "venomous" "fins"    
+[13] "legs"     "tail"     "domestic" "catsize" </code></pre>
+</div>
+</div>
+<p>All accuracy less that 55%, these seem low.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>subset <span class="ot">&lt;-</span> <span class="fu">forward.search</span>(features, evaluator)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Trying features: hair 
+Accuracy: 0.49 
+
+Trying features: feathers 
+Accuracy: 0.46 
+
+Trying features: eggs 
+Accuracy: 0.44 
+
+Trying features: milk 
+Accuracy: 0.52 
+
+Trying features: airborne 
+Accuracy: 0.45 
+
+Trying features: aquatic 
+Accuracy: 0.42 
+
+Trying features: predator 
+Accuracy: 0.33 
+
+Trying features: toothed 
+Accuracy: 0.41 
+
+Trying features: backbone 
+Accuracy: 0.39 
+
+Trying features: breathes 
+Accuracy: 0.44 
+
+Trying features: venomous 
+Accuracy: 0.35 
+
+Trying features: fins 
+Accuracy: 0.43 
+
+Trying features: legs 
+Accuracy: 0.47 
+
+Trying features: tail 
+Accuracy: 0.36 
+
+Trying features: domestic 
+Accuracy: 0.37 
+
+Trying features: catsize 
+Accuracy: 0.39 
+
+Trying features: hair + milk 
+Accuracy: 0.4 
+
+Trying features: feathers + milk 
+Accuracy: 0.5 
+
+Trying features: eggs + milk 
+Accuracy: 0.41 
+
+Trying features: milk + airborne 
+Accuracy: 0.46 
+
+Trying features: milk + aquatic 
+Accuracy: 0.49 
+
+Trying features: milk + predator 
+Accuracy: 0.42 
+
+Trying features: milk + toothed 
+Accuracy: 0.55 
+
+Trying features: milk + backbone 
+Accuracy: 0.45 
+
+Trying features: milk + breathes 
+Accuracy: 0.51 
+
+Trying features: milk + venomous 
+Accuracy: 0.52 
+
+Trying features: milk + fins 
+Accuracy: 0.51 
+
+Trying features: milk + legs 
+Accuracy: 0.47 
+
+Trying features: milk + tail 
+Accuracy: 0.5 
+
+Trying features: milk + domestic 
+Accuracy: 0.49 
+
+Trying features: milk + catsize 
+Accuracy: 0.44 
+
+Trying features: hair + milk + toothed 
+Accuracy: 0.45 
+
+Trying features: feathers + milk + toothed 
+Accuracy: 0.52 
+
+Trying features: eggs + milk + toothed 
+Accuracy: 0.47 
+
+Trying features: milk + airborne + toothed 
+Accuracy: 0.44 
+
+Trying features: milk + aquatic + toothed 
+Accuracy: 0.45 
+
+Trying features: milk + predator + toothed 
+Accuracy: 0.5 
+
+Trying features: milk + toothed + backbone 
+Accuracy: 0.43 
+
+Trying features: milk + toothed + breathes 
+Accuracy: 0.52 
+
+Trying features: milk + toothed + venomous 
+Accuracy: 0.47 
+
+Trying features: milk + toothed + fins 
+Accuracy: 0.52 
+
+Trying features: milk + toothed + legs 
+Accuracy: 0.5 
+
+Trying features: milk + toothed + tail 
+Accuracy: 0.46 
+
+Trying features: milk + toothed + domestic 
+Accuracy: 0.52 
+
+Trying features: milk + toothed + catsize 
+Accuracy: 0.38 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>subset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "milk"    "toothed"</code></pre>
+</div>
+</div>
+<p>These accuracy seem low as well with most being below 50%</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>subset <span class="ot">&lt;-</span> <span class="fu">best.first.search</span>(features, evaluator)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Trying features: hair 
+Accuracy: 0.42 
+
+Trying features: feathers 
+Accuracy: 0.5 
+
+Trying features: eggs 
+Accuracy: 0.5 
+
+Trying features: milk 
+Accuracy: 0.5 
+
+Trying features: airborne 
+Accuracy: 0.45 
+
+Trying features: aquatic 
+Accuracy: 0.41 
+
+Trying features: predator 
+Accuracy: 0.39 
+
+Trying features: toothed 
+Accuracy: 0.47 
+
+Trying features: backbone 
+Accuracy: 0.44 
+
+Trying features: breathes 
+Accuracy: 0.49 
+
+Trying features: venomous 
+Accuracy: 0.41 
+
+Trying features: fins 
+Accuracy: 0.43 
+
+Trying features: legs 
+Accuracy: 0.49 
+
+Trying features: tail 
+Accuracy: 0.39 
+
+Trying features: domestic 
+Accuracy: 0.45 
+
+Trying features: catsize 
+Accuracy: 0.34 
+
+Trying features: hair + milk 
+Accuracy: 0.51 
+
+Trying features: feathers + milk 
+Accuracy: 0.53 
+
+Trying features: eggs + milk 
+Accuracy: 0.52 
+
+Trying features: milk + airborne 
+Accuracy: 0.41 
+
+Trying features: milk + aquatic 
+Accuracy: 0.49 
+
+Trying features: milk + predator 
+Accuracy: 0.42 
+
+Trying features: milk + toothed 
+Accuracy: 0.52 
+
+Trying features: milk + backbone 
+Accuracy: 0.49 
+
+Trying features: milk + breathes 
+Accuracy: 0.41 
+
+Trying features: milk + venomous 
+Accuracy: 0.42 
+
+Trying features: milk + fins 
+Accuracy: 0.5 
+
+Trying features: milk + legs 
+Accuracy: 0.57 
+
+Trying features: milk + tail 
+Accuracy: 0.49 
+
+Trying features: milk + domestic 
+Accuracy: 0.48 
+
+Trying features: milk + catsize 
+Accuracy: 0.57 
+
+Trying features: hair + milk + legs 
+Accuracy: 0.45 
+
+Trying features: feathers + milk + legs 
+Accuracy: 0.46 
+
+Trying features: eggs + milk + legs 
+Accuracy: 0.46 
+
+Trying features: milk + airborne + legs 
+Accuracy: 0.43 
+
+Trying features: milk + aquatic + legs 
+Accuracy: 0.48 
+
+Trying features: milk + predator + legs 
+Accuracy: 0.49 
+
+Trying features: milk + toothed + legs 
+Accuracy: 0.44 
+
+Trying features: milk + backbone + legs 
+Accuracy: 0.5 
+
+Trying features: milk + breathes + legs 
+Accuracy: 0.51 
+
+Trying features: milk + venomous + legs 
+Accuracy: 0.47 
+
+Trying features: milk + fins + legs 
+Accuracy: 0.46 
+
+Trying features: milk + legs + tail 
+Accuracy: 0.47 
+
+Trying features: milk + legs + domestic 
+Accuracy: 0.37 
+
+Trying features: milk + legs + catsize 
+Accuracy: 0.42 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>subset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "milk" "legs"</code></pre>
+</div>
+</div>
+<p>This produced the highest accuracy scores yet.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>subset <span class="ot">&lt;-</span> <span class="fu">hill.climbing.search</span>(features, evaluator)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Trying features: hair + airborne + predator + toothed + venomous + fins + catsize 
+Accuracy: 0.48 
+
+Trying features: hair + feathers + airborne + predator + toothed + venomous + fins + catsize 
+Accuracy: 0.41 
+
+Trying features: hair + eggs + airborne + predator + toothed + venomous + fins + catsize 
+Accuracy: 0.43 
+
+Trying features: hair + milk + airborne + predator + toothed + venomous + fins + catsize 
+Accuracy: 0.39 
+
+Trying features: hair + airborne + aquatic + predator + toothed + venomous + fins + catsize 
+Accuracy: 0.5 
+
+Trying features: hair + airborne + predator + toothed + backbone + venomous + fins + catsize 
+Accuracy: 0.47 
+
+Trying features: hair + airborne + predator + toothed + breathes + venomous + fins + catsize 
+Accuracy: 0.49 
+
+Trying features: hair + airborne + predator + toothed + venomous + fins + legs + catsize 
+Accuracy: 0.46 
+
+Trying features: hair + airborne + predator + toothed + venomous + fins + tail + catsize 
+Accuracy: 0.37 
+
+Trying features: hair + airborne + predator + toothed + venomous + fins + domestic + catsize 
+Accuracy: 0.48 
+
+Trying features: airborne + predator + toothed + venomous + fins + catsize 
+Accuracy: 0.46 
+
+Trying features: hair + predator + toothed + venomous + fins + catsize 
+Accuracy: 0.45 
+
+Trying features: hair + airborne + toothed + venomous + fins + catsize 
+Accuracy: 0.44 
+
+Trying features: hair + airborne + predator + venomous + fins + catsize 
+Accuracy: 0.51 
+
+Trying features: hair + airborne + predator + toothed + fins + catsize 
+Accuracy: 0.52 
+
+Trying features: hair + airborne + predator + toothed + venomous + catsize 
+Accuracy: 0.45 
+
+Trying features: hair + airborne + predator + toothed + venomous + fins 
+Accuracy: 0.48 
+
+Trying features: hair + feathers + airborne + predator + toothed + fins + catsize 
+Accuracy: 0.43 
+
+Trying features: hair + eggs + airborne + predator + toothed + fins + catsize 
+Accuracy: 0.49 
+
+Trying features: hair + milk + airborne + predator + toothed + fins + catsize 
+Accuracy: 0.42 
+
+Trying features: hair + airborne + aquatic + predator + toothed + fins + catsize 
+Accuracy: 0.42 
+
+Trying features: hair + airborne + predator + toothed + backbone + fins + catsize 
+Accuracy: 0.56 
+
+Trying features: hair + airborne + predator + toothed + breathes + fins + catsize 
+Accuracy: 0.56 
+
+Trying features: hair + airborne + predator + toothed + fins + legs + catsize 
+Accuracy: 0.58 
+
+Trying features: hair + airborne + predator + toothed + fins + tail + catsize 
+Accuracy: 0.47 
+
+Trying features: hair + airborne + predator + toothed + fins + domestic + catsize 
+Accuracy: 0.51 
+
+Trying features: airborne + predator + toothed + fins + catsize 
+Accuracy: 0.48 
+
+Trying features: hair + predator + toothed + fins + catsize 
+Accuracy: 0.44 
+
+Trying features: hair + airborne + toothed + fins + catsize 
+Accuracy: 0.49 
+
+Trying features: hair + airborne + predator + fins + catsize 
+Accuracy: 0.46 
+
+Trying features: hair + airborne + predator + toothed + catsize 
+Accuracy: 0.46 
+
+Trying features: hair + airborne + predator + toothed + fins 
+Accuracy: 0.49 
+
+Trying features: hair + feathers + airborne + predator + toothed + fins + legs + catsize 
+Accuracy: 0.52 
+
+Trying features: hair + eggs + airborne + predator + toothed + fins + legs + catsize 
+Accuracy: 0.43 
+
+Trying features: hair + milk + airborne + predator + toothed + fins + legs + catsize 
+Accuracy: 0.43 
+
+Trying features: hair + airborne + aquatic + predator + toothed + fins + legs + catsize 
+Accuracy: 0.42 
+
+Trying features: hair + airborne + predator + toothed + backbone + fins + legs + catsize 
+Accuracy: 0.45 
+
+Trying features: hair + airborne + predator + toothed + breathes + fins + legs + catsize 
+Accuracy: 0.47 
+
+Trying features: hair + airborne + predator + toothed + fins + legs + tail + catsize 
+Accuracy: 0.48 
+
+Trying features: hair + airborne + predator + toothed + fins + legs + domestic + catsize 
+Accuracy: 0.4 
+
+Trying features: airborne + predator + toothed + fins + legs + catsize 
+Accuracy: 0.47 
+
+Trying features: hair + predator + toothed + fins + legs + catsize 
+Accuracy: 0.49 
+
+Trying features: hair + airborne + toothed + fins + legs + catsize 
+Accuracy: 0.4 
+
+Trying features: hair + airborne + predator + fins + legs + catsize 
+Accuracy: 0.38 
+
+Trying features: hair + airborne + predator + toothed + legs + catsize 
+Accuracy: 0.44 
+
+Trying features: hair + airborne + predator + toothed + fins + legs 
+Accuracy: 0.44 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a>subset</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "hair"     "airborne" "predator" "toothed"  "fins"     "legs"     "catsize" </code></pre>
+</div>
+</div>
+<p>This subset appears closer tot he features used in the decision trees above</p>
+</section>
+<section id="using-dummy-variables-for-factors" class="level3">
+<h3 class="anchored" data-anchor-id="using-dummy-variables-for-factors"><strong>Using Dummy Variables for Factors</strong></h3>
+<p>Nominal features (factors) are often encoded as a series of 0-1 dummy variables. For example, let us try to predict if an animal is a predator given the type. First we use the original encoding of type as a factor with several values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>tree_predator <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span> </span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rpart</span>(predator <span class="sc">~</span> type, <span class="at">data =</span> _)</span>
+<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(tree_predator, <span class="at">extra =</span> <span class="dv">2</span>, <span class="at">roundint =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-56-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>Note:</strong> Some splits use multiple values. Building the tree will become extremely slow if a factor has many levels (different values) since the tree has to check all possible splits into two subsets. This situation should be avoided.</p>
+<p>Convert type into a set of 0-1 dummy variables using <code>class2ind</code>. See also <code>? dummyVars</code> in package <code>caret</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>Zoo_train_dummy <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">class2ind</span>(Zoo_train<span class="sc">$</span>type)) <span class="sc">|&gt;</span> </span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), as.factor)) <span class="sc">|&gt;</span></span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">predator =</span> Zoo_train<span class="sc">$</span>predator)</span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>Zoo_train_dummy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 83 × 8
+   mammal bird  reptile fish  amphibian insect mollusc.et.al predator
+   &lt;fct&gt;  &lt;fct&gt; &lt;fct&gt;   &lt;fct&gt; &lt;fct&gt;     &lt;fct&gt;  &lt;fct&gt;         &lt;fct&gt;   
+ 1 1      0     0       0     0         0      0             TRUE    
+ 2 1      0     0       0     0         0      0             FALSE   
+ 3 0      0     0       1     0         0      0             TRUE    
+ 4 1      0     0       0     0         0      0             TRUE    
+ 5 1      0     0       0     0         0      0             FALSE   
+ 6 1      0     0       0     0         0      0             FALSE   
+ 7 0      0     0       1     0         0      0             FALSE   
+ 8 0      0     0       1     0         0      0             TRUE    
+ 9 1      0     0       0     0         0      0             FALSE   
+10 0      1     0       0     0         0      0             FALSE   
+# ℹ 73 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>tree_predator <span class="ot">&lt;-</span> Zoo_train_dummy <span class="sc">|&gt;</span> </span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rpart</span>(predator <span class="sc">~</span> ., </span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _,</span>
+<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">minsplit =</span> <span class="dv">2</span>, <span class="at">cp =</span> <span class="fl">0.01</span>))</span>
+<span id="cb110-5"><a href="#cb110-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(tree_predator, <span class="at">roundint =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-58-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Using&nbsp;<code>caret</code>&nbsp;on the original factor encoding automatically translates factors (here type) into 0-1 dummy variables (e.g.,&nbsp;<code>typeinsect = 0</code>). The reason is that some models cannot directly use factors and&nbsp;<code>caret</code>&nbsp;tries to consistently work with all of them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> Zoo_train <span class="sc">|&gt;</span> </span>
+<span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(predator <span class="sc">~</span> type, </span>
+<span id="cb111-3"><a href="#cb111-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _, </span>
+<span id="cb111-4"><a href="#cb111-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb111-5"><a href="#cb111-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">minsplit =</span> <span class="dv">2</span>),</span>
+<span id="cb111-6"><a href="#cb111-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">tuneGrid =</span> <span class="fu">data.frame</span>(<span class="at">cp =</span> <span class="fl">0.01</span>))</span>
+<span id="cb111-7"><a href="#cb111-7" aria-hidden="true" tabindex="-1"></a>fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CART 
+
+83 samples
+ 1 predictor
+ 2 classes: 'TRUE', 'FALSE' 
+
+No pre-processing
+Resampling: Bootstrapped (25 reps) 
+Summary of sample sizes: 83, 83, 83, 83, 83, 83, ... 
+Resampling results:
+
+  Accuracy   Kappa     
+  0.5474686  0.08647121
+
+Tuning parameter 'cp' was held constant at a value of 0.01</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(fit<span class="sc">$</span>finalModel, <span class="at">extra =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-60-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><em>Note:</em> To use a fixed value for the tuning parameter <code>cp</code>, we have to create a tuning grid that only contains that value.</p>
+</section>
+</section>
+<section id="class-imbalance" class="level2">
+<h2 class="anchored" data-anchor-id="class-imbalance"><strong>Class Imbalance</strong></h2>
+<p>Classifiers have a hard time to learn from data where we have much more observations for one class (called the majority class). This is called the class imbalance problem.</p>
+<p>Here is a very good <a href="http://www.kdnuggets.com/2016/08/learning-from-imbalanced-classes.html">article about the problem and solutions.</a></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rpart)</span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rpart.plot)</span>
+<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Zoo, <span class="at">package=</span><span class="st">"mlbench"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Class distribution</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(Zoo, <span class="fu">aes</span>(<span class="at">y =</span> type)) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-62-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>To create an imbalanced problem, we want to decide if an animal is an reptile. First, we change the class variable to make it into a binary reptile/no reptile classification problem.&nbsp;<strong>Note:</strong>&nbsp;We use here the training data for testing. You should use a separate testing data set!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>Zoo_reptile <span class="ot">&lt;-</span> Zoo <span class="sc">|&gt;</span> </span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">factor</span>(Zoo<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"reptile"</span>, </span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">levels =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">TRUE</span>),</span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"nonreptile"</span>, <span class="st">"reptile"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Do not forget to make the class variable a factor (a nominal variable) or you will get a regression tree instead of a classification tree.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Zoo_reptile)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    hair          feathers          eggs            milk        
+ Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+ FALSE:58        FALSE:81        FALSE:42        FALSE:60       
+ TRUE :43        TRUE :20        TRUE :59        TRUE :41       
+                                                                
+                                                                
+                                                                
+  airborne        aquatic         predator        toothed       
+ Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+ FALSE:77        FALSE:65        FALSE:45        FALSE:40       
+ TRUE :24        TRUE :36        TRUE :56        TRUE :61       
+                                                                
+                                                                
+                                                                
+  backbone        breathes        venomous          fins        
+ Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+ FALSE:18        FALSE:21        FALSE:93        FALSE:84       
+ TRUE :83        TRUE :80        TRUE :8         TRUE :17       
+                                                                
+                                                                
+                                                                
+      legs          tail          domestic        catsize       
+ Min.   :0.000   Mode :logical   Mode :logical   Mode :logical  
+ 1st Qu.:2.000   FALSE:26        FALSE:88        FALSE:57       
+ Median :4.000   TRUE :75        TRUE :13        TRUE :44       
+ Mean   :2.842                                                  
+ 3rd Qu.:4.000                                                  
+ Max.   :8.000                                                  
+         type   
+ nonreptile:96  
+ reptile   : 5  
+                
+                
+                
+                </code></pre>
+</div>
+</div>
+<p>See if we have a class imbalance problem.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(Zoo_reptile, <span class="fu">aes</span>(<span class="at">y =</span> type)) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-65-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Create test and training data. I use here a 50/50 split to make sure that the test set has some samples of the rare reptile class.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>inTrain <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(<span class="at">y =</span> Zoo_reptile<span class="sc">$</span>type, <span class="at">p =</span> .<span class="dv">5</span>, <span class="at">list =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a>training_reptile <span class="ot">&lt;-</span> Zoo_reptile <span class="sc">|&gt;</span> <span class="fu">slice</span>(inTrain)</span>
+<span id="cb120-5"><a href="#cb120-5" aria-hidden="true" tabindex="-1"></a>testing_reptile <span class="ot">&lt;-</span> Zoo_reptile <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="sc">-</span>inTrain)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>the new class variable is clearly not balanced. This is a problem for building a tree!</p>
+<section id="option-1-use-the-data-as-is-and-hope-for-the-best" class="level3">
+<h3 class="anchored" data-anchor-id="option-1-use-the-data-as-is-and-hope-for-the-best"><strong>Option 1: Use the Data As Is and Hope For The Best</strong></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> training_reptile <span class="sc">|&gt;</span> </span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(type <span class="sc">~</span> .,</span>
+<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _,</span>
+<span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb121-5"><a href="#cb121-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info = trainInfo,
+: There were missing values in resampled performance measures.</code></pre>
+</div>
+</div>
+<p><strong>Warnings:</strong>&nbsp;"There were missing values in resampled performance measures." means that some test folds did not contain examples of both classes. This is very likely with class imbalance and small datasets.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CART 
+
+51 samples
+16 predictors
+ 2 classes: 'nonreptile', 'reptile' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 46, 47, 46, 46, 45, 46, ... 
+Resampling results:
+
+  Accuracy   Kappa
+  0.9466667  0    
+
+Tuning parameter 'cp' was held constant at a value of 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(fit<span class="sc">$</span>finalModel, <span class="at">extra =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-69-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>the tree predicts everything as non-reptile. Have a look at the error on the test set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(<span class="at">data =</span> <span class="fu">predict</span>(fit, testing_reptile),</span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">ref =</span> testing_reptile<span class="sc">$</span>type, <span class="at">positive =</span> <span class="st">"reptile"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+            Reference
+Prediction   nonreptile reptile
+  nonreptile         48       2
+  reptile             0       0
+                                          
+               Accuracy : 0.96            
+                 95% CI : (0.8629, 0.9951)
+    No Information Rate : 0.96            
+    P-Value [Acc &gt; NIR] : 0.6767          
+                                          
+                  Kappa : 0               
+                                          
+ Mcnemar's Test P-Value : 0.4795          
+                                          
+            Sensitivity : 0.00            
+            Specificity : 1.00            
+         Pos Pred Value :  NaN            
+         Neg Pred Value : 0.96            
+             Prevalence : 0.04            
+         Detection Rate : 0.00            
+   Detection Prevalence : 0.00            
+      Balanced Accuracy : 0.50            
+                                          
+       'Positive' Class : reptile         
+                                          </code></pre>
+</div>
+</div>
+<p>Accuracy is high, but it is exactly the same as the no-information rate and kappa is zero. Sensitivity is also zero, meaning that we do not identify any positive (reptile). If the cost of missing a positive is much larger than the cost associated with misclassifying a negative, then accuracy is not a good measure! By dealing with imbalance, we are <strong>not</strong> concerned with accuracy, but we want to increase the sensitivity, i.e., the chance to identify positive examples.</p>
+<p><strong>Note:</strong> The positive class value (the one that you want to detect) is set manually to reptile using <code>positive = "reptile"</code>. Otherwise sensitivity/specificity will not be correctly calculated.</p>
+</section>
+<section id="option-2-balance-data-with-resampling" class="level3">
+<h3 class="anchored" data-anchor-id="option-2-balance-data-with-resampling"><strong>Option 2: Balance Data With Resampling</strong></h3>
+<p>We use stratified sampling with replacement (to oversample the minority/positive class). You could also use SMOTE (in package <strong>DMwR</strong>) or other sampling strategies (e.g., from package <strong>unbalanced</strong>). We use 50+50 observations here (<strong>Note:</strong> many samples will be chosen several times).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sampling)</span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1000</span>) <span class="co"># for repeatability</span></span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-4"><a href="#cb128-4" aria-hidden="true" tabindex="-1"></a>id <span class="ot">&lt;-</span> <span class="fu">strata</span>(training_reptile, <span class="at">stratanames =</span> <span class="st">"type"</span>, <span class="at">size =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">50</span>), <span class="at">method =</span> <span class="st">"srswr"</span>)</span>
+<span id="cb128-5"><a href="#cb128-5" aria-hidden="true" tabindex="-1"></a>training_reptile_balanced <span class="ot">&lt;-</span> training_reptile <span class="sc">|&gt;</span> </span>
+<span id="cb128-6"><a href="#cb128-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(id<span class="sc">$</span>ID_unit)</span>
+<span id="cb128-7"><a href="#cb128-7" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(training_reptile_balanced<span class="sc">$</span>type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+nonreptile    reptile 
+        50         50 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> training_reptile_balanced <span class="sc">|&gt;</span> </span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(type <span class="sc">~</span> .,</span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _,</span>
+<span id="cb130-4"><a href="#cb130-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb130-5"><a href="#cb130-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>),</span>
+<span id="cb130-6"><a href="#cb130-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">minsplit =</span> <span class="dv">5</span>))</span>
+<span id="cb130-7"><a href="#cb130-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb130-8"><a href="#cb130-8" aria-hidden="true" tabindex="-1"></a>fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CART 
+
+100 samples
+ 16 predictor
+  2 classes: 'nonreptile', 'reptile' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 90, 90, 90, 90, 90, 90, ... 
+Resampling results across tuning parameters:
+
+  cp    Accuracy  Kappa
+  0.18  0.81      0.62 
+  0.30  0.63      0.26 
+  0.34  0.53      0.06 
+
+Accuracy was used to select the optimal model using the largest value.
+The final value used for the model was cp = 0.18.</code></pre>
+</div>
+</div>
+<p>My random sampling even though I set the seed the same as the example is different.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(fit<span class="sc">$</span>finalModel, <span class="at">extra =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-73-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>My model accurately identified 2 more additional non reptile than the example in the training data.</p>
+<p>Check on the unbalanced testing data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(<span class="at">data =</span> <span class="fu">predict</span>(fit, testing_reptile),</span>
+<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">ref =</span> testing_reptile<span class="sc">$</span>type, <span class="at">positive =</span> <span class="st">"reptile"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+            Reference
+Prediction   nonreptile reptile
+  nonreptile         19       0
+  reptile            29       2
+                                          
+               Accuracy : 0.42            
+                 95% CI : (0.2819, 0.5679)
+    No Information Rate : 0.96            
+    P-Value [Acc &gt; NIR] : 1               
+                                          
+                  Kappa : 0.0498          
+                                          
+ Mcnemar's Test P-Value : 1.999e-07       
+                                          
+            Sensitivity : 1.00000         
+            Specificity : 0.39583         
+         Pos Pred Value : 0.06452         
+         Neg Pred Value : 1.00000         
+             Prevalence : 0.04000         
+         Detection Rate : 0.04000         
+   Detection Prevalence : 0.62000         
+      Balanced Accuracy : 0.69792         
+                                          
+       'Positive' Class : reptile         
+                                          </code></pre>
+</div>
+</div>
+<p>My testing data appears to have more reptile than the example. Therefore my accuracy in considerably lower and my positive prediction value is only 6.4% rather the 11.7% in the example. My kappa is also lower that the example but my sensitivity is the same.</p>
+<p><strong>Note</strong> that the accuracy is below the no information rate! However, kappa (improvement of accuracy over randomness) and sensitivity (the ability to identify reptiles) have increased.</p>
+<p>There is a tradeoff between sensitivity and specificity (how many of the identified animals are really reptiles) The tradeoff can be controlled using the sample proportions. We can sample more reptiles to increase sensitivity at the cost of lower specificity (this effect cannot be seen in the data since the test set has only a few reptiles).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a>id <span class="ot">&lt;-</span> <span class="fu">strata</span>(training_reptile, <span class="at">stratanames =</span> <span class="st">"type"</span>, <span class="at">size =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">100</span>), <span class="at">method =</span> <span class="st">"srswr"</span>)</span>
+<span id="cb135-2"><a href="#cb135-2" aria-hidden="true" tabindex="-1"></a>training_reptile_balanced <span class="ot">&lt;-</span> training_reptile <span class="sc">|&gt;</span> </span>
+<span id="cb135-3"><a href="#cb135-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(id<span class="sc">$</span>ID_unit)</span>
+<span id="cb135-4"><a href="#cb135-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(training_reptile_balanced<span class="sc">$</span>type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+nonreptile    reptile 
+        50        100 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> training_reptile_balanced <span class="sc">|&gt;</span> </span>
+<span id="cb137-2"><a href="#cb137-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(type <span class="sc">~</span> .,</span>
+<span id="cb137-3"><a href="#cb137-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _,</span>
+<span id="cb137-4"><a href="#cb137-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb137-5"><a href="#cb137-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>),</span>
+<span id="cb137-6"><a href="#cb137-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">minsplit =</span> <span class="dv">5</span>))</span>
+<span id="cb137-7"><a href="#cb137-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-8"><a href="#cb137-8" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(<span class="at">data =</span> <span class="fu">predict</span>(fit, testing_reptile),</span>
+<span id="cb137-9"><a href="#cb137-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">ref =</span> testing_reptile<span class="sc">$</span>type, <span class="at">positive =</span> <span class="st">"reptile"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+            Reference
+Prediction   nonreptile reptile
+  nonreptile         33       0
+  reptile            15       2
+                                          
+               Accuracy : 0.7             
+                 95% CI : (0.5539, 0.8214)
+    No Information Rate : 0.96            
+    P-Value [Acc &gt; NIR] : 1.0000000       
+                                          
+                  Kappa : 0.1497          
+                                          
+ Mcnemar's Test P-Value : 0.0003006       
+                                          
+            Sensitivity : 1.0000          
+            Specificity : 0.6875          
+         Pos Pred Value : 0.1176          
+         Neg Pred Value : 1.0000          
+             Prevalence : 0.0400          
+         Detection Rate : 0.0400          
+   Detection Prevalence : 0.3400          
+      Balanced Accuracy : 0.8438          
+                                          
+       'Positive' Class : reptile         
+                                          </code></pre>
+</div>
+</div>
+<p>Now my results are aligned with the example. interesting.</p>
+</section>
+<section id="option-3-build-a-larger-tree-and-use-predicted-probabilities" class="level3">
+<h3 class="anchored" data-anchor-id="option-3-build-a-larger-tree-and-use-predicted-probabilities"><strong>Option 3: Build A Larger Tree and use Predicted Probabilities</strong></h3>
+<p>Increase complexity and require less data for splitting a node. Here I also use AUC (area under the ROC) as the tuning metric. You need to specify the two class summary function. Note that the tree still trying to improve accuracy on the data and not AUC! I also enable class probabilities since I want to predict probabilities later.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> training_reptile <span class="sc">|&gt;</span> </span>
+<span id="cb139-2"><a href="#cb139-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(type <span class="sc">~</span> .,</span>
+<span id="cb139-3"><a href="#cb139-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _,</span>
+<span id="cb139-4"><a href="#cb139-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb139-5"><a href="#cb139-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">tuneLength =</span> <span class="dv">10</span>,</span>
+<span id="cb139-6"><a href="#cb139-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
+<span id="cb139-7"><a href="#cb139-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">classProbs =</span> <span class="cn">TRUE</span>,  <span class="do">## necessary for predict with type="prob"</span></span>
+<span id="cb139-8"><a href="#cb139-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">summaryFunction=</span>twoClassSummary),  <span class="do">## necessary for ROC</span></span>
+<span id="cb139-9"><a href="#cb139-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">metric =</span> <span class="st">"ROC"</span>,</span>
+<span id="cb139-10"><a href="#cb139-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">rpart.control</span>(<span class="at">minsplit =</span> <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info = trainInfo,
+: There were missing values in resampled performance measures.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb141"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a>fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CART 
+
+51 samples
+16 predictors
+ 2 classes: 'nonreptile', 'reptile' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 46, 47, 46, 46, 46, 45, ... 
+Resampling results:
+
+  ROC        Sens   Spec
+  0.3583333  0.975  0   
+
+Tuning parameter 'cp' was held constant at a value of 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(fit<span class="sc">$</span>finalModel, <span class="at">extra =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-79-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(<span class="at">data =</span> <span class="fu">predict</span>(fit, testing_reptile),</span>
+<span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">ref =</span> testing_reptile<span class="sc">$</span>type, <span class="at">positive =</span> <span class="st">"reptile"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+            Reference
+Prediction   nonreptile reptile
+  nonreptile         48       2
+  reptile             0       0
+                                          
+               Accuracy : 0.96            
+                 95% CI : (0.8629, 0.9951)
+    No Information Rate : 0.96            
+    P-Value [Acc &gt; NIR] : 0.6767          
+                                          
+                  Kappa : 0               
+                                          
+ Mcnemar's Test P-Value : 0.4795          
+                                          
+            Sensitivity : 0.00            
+            Specificity : 1.00            
+         Pos Pred Value :  NaN            
+         Neg Pred Value : 0.96            
+             Prevalence : 0.04            
+         Detection Rate : 0.00            
+   Detection Prevalence : 0.00            
+      Balanced Accuracy : 0.50            
+                                          
+       'Positive' Class : reptile         
+                                          </code></pre>
+</div>
+</div>
+<p><strong>Note:</strong> Accuracy is high, but it is close or below to the no-information rate!</p>
+<section id="create-a-biased-classifier" class="level4">
+<h4 class="anchored" data-anchor-id="create-a-biased-classifier">Create A Biased Classifier</h4>
+<p>We can create a classifier which will detect more reptiles at the expense of misclassifying non-reptiles. This is equivalent to increasing the cost of misclassifying a reptile as a non-reptile. The usual rule is to predict in each node the majority class from the test data in the node. For a binary classification problem that means a probability of &gt;50%. In the following, we reduce this threshold to 1% or more. This means that if the new observation ends up in a leaf node with 1% or more reptiles from training then the observation will be classified as a reptile. The data set is small and this works better with more data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a>prob <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, testing_reptile, <span class="at">type =</span> <span class="st">"prob"</span>)</span>
+<span id="cb146-2"><a href="#cb146-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     nonreptile    reptile
+tuna  1.0000000 0.00000000
+vole  0.9615385 0.03846154
+wasp  0.5000000 0.50000000
+wolf  0.9615385 0.03846154
+worm  1.0000000 0.00000000
+wren  0.9615385 0.03846154</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb148"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">ifelse</span>(prob[,<span class="st">"reptile"</span>]<span class="sc">&gt;=</span><span class="fl">0.01</span>, <span class="st">"reptile"</span>, <span class="st">"nonreptile"</span>))</span>
+<span id="cb148-2"><a href="#cb148-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb148-3"><a href="#cb148-3" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(<span class="at">data =</span> pred,</span>
+<span id="cb148-4"><a href="#cb148-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">ref =</span> testing_reptile<span class="sc">$</span>type, <span class="at">positive =</span> <span class="st">"reptile"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+            Reference
+Prediction   nonreptile reptile
+  nonreptile         13       0
+  reptile            35       2
+                                          
+               Accuracy : 0.3             
+                 95% CI : (0.1786, 0.4461)
+    No Information Rate : 0.96            
+    P-Value [Acc &gt; NIR] : 1               
+                                          
+                  Kappa : 0.0289          
+                                          
+ Mcnemar's Test P-Value : 9.081e-09       
+                                          
+            Sensitivity : 1.00000         
+            Specificity : 0.27083         
+         Pos Pred Value : 0.05405         
+         Neg Pred Value : 1.00000         
+             Prevalence : 0.04000         
+         Detection Rate : 0.04000         
+   Detection Prevalence : 0.74000         
+      Balanced Accuracy : 0.63542         
+                                          
+       'Positive' Class : reptile         
+                                          </code></pre>
+</div>
+</div>
+<p><strong>Note</strong> that accuracy goes down and is below the no information rate. However, both measures are based on the idea that all errors have the same cost. What is important is that we are now able to find more reptiles.</p>
+</section>
+<section id="plot-the-roc-curve" class="level4">
+<h4 class="anchored" data-anchor-id="plot-the-roc-curve">Plot the ROC Curve</h4>
+<p>Since we have a binary classification problem and a classifier that predicts a probability for an observation to be a reptile, we can also use a <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic (ROC)</a> curve. For the ROC curve all different cutoff thresholds for the probability are used and then connected with a line. The area under the curve represents a single number for how well the classifier works (the closer to one, the better).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb150"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb150-1"><a href="#cb150-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"pROC"</span>)</span>
+<span id="cb150-2"><a href="#cb150-2" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">roc</span>(testing_reptile<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"reptile"</span>, prob[,<span class="st">"reptile"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting levels: control = FALSE, case = TRUE</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting direction: controls &lt; cases</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a>r</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+roc.default(response = testing_reptile$type == "reptile", predictor = prob[,     "reptile"])
+
+Data: prob[, "reptile"] in 48 controls (testing_reptile$type == "reptile" FALSE) &lt; 2 cases (testing_reptile$type == "reptile" TRUE).
+Area under the curve: 0.7656</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggroc</span>(r) <span class="sc">+</span> <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">1</span>, <span class="at">slope =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"darkgrey"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-85-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="option-4-use-a-cost-sensitive-classifier" class="level3">
+<h3 class="anchored" data-anchor-id="option-4-use-a-cost-sensitive-classifier"><strong>Option 4: Use a Cost-Sensitive Classifier</strong></h3>
+<p>The implementation of CART in <code>rpart</code> can use a cost matrix for making splitting decisions (as parameter <code>loss</code>). The matrix has the form</p>
+<p>TP FP FN TN</p>
+<p>TP and TN have to be 0. We make FN very expensive (100).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb156"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href="#cb156-1" aria-hidden="true" tabindex="-1"></a>cost <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb156-2"><a href="#cb156-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">0</span>,   <span class="dv">1</span>,</span>
+<span id="cb156-3"><a href="#cb156-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100</span>, <span class="dv">0</span></span>
+<span id="cb156-4"><a href="#cb156-4" aria-hidden="true" tabindex="-1"></a>), <span class="at">byrow =</span> <span class="cn">TRUE</span>, <span class="at">nrow =</span> <span class="dv">2</span>)</span>
+<span id="cb156-5"><a href="#cb156-5" aria-hidden="true" tabindex="-1"></a>cost</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    0    1
+[2,]  100    0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> training_reptile <span class="sc">|&gt;</span> </span>
+<span id="cb158-2"><a href="#cb158-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">train</span>(type <span class="sc">~</span> .,</span>
+<span id="cb158-3"><a href="#cb158-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> _,</span>
+<span id="cb158-4"><a href="#cb158-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"rpart"</span>,</span>
+<span id="cb158-5"><a href="#cb158-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">parms =</span> <span class="fu">list</span>(<span class="at">loss =</span> cost),</span>
+<span id="cb158-6"><a href="#cb158-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The warning "There were missing values in resampled performance measures" means that some folds did not contain any reptiles (because of the class imbalance) and thus the performance measures could not be calculates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb159"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb159-1"><a href="#cb159-1" aria-hidden="true" tabindex="-1"></a>fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CART 
+
+51 samples
+16 predictors
+ 2 classes: 'nonreptile', 'reptile' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 46, 46, 46, 45, 46, 45, ... 
+Resampling results:
+
+  Accuracy   Kappa      
+  0.4766667  -0.03038961
+
+Tuning parameter 'cp' was held constant at a value of 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(fit<span class="sc">$</span>finalModel, <span class="at">extra =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="part1_exercise3_files/figure-html/unnamed-chunk-89-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb162"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href="#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(<span class="at">data =</span> <span class="fu">predict</span>(fit, testing_reptile),</span>
+<span id="cb162-2"><a href="#cb162-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">ref =</span> testing_reptile<span class="sc">$</span>type, <span class="at">positive =</span> <span class="st">"reptile"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+            Reference
+Prediction   nonreptile reptile
+  nonreptile         39       0
+  reptile             9       2
+                                          
+               Accuracy : 0.82            
+                 95% CI : (0.6856, 0.9142)
+    No Information Rate : 0.96            
+    P-Value [Acc &gt; NIR] : 0.999975        
+                                          
+                  Kappa : 0.2574          
+                                          
+ Mcnemar's Test P-Value : 0.007661        
+                                          
+            Sensitivity : 1.0000          
+            Specificity : 0.8125          
+         Pos Pred Value : 0.1818          
+         Neg Pred Value : 1.0000          
+             Prevalence : 0.0400          
+         Detection Rate : 0.0400          
+   Detection Prevalence : 0.2200          
+      Balanced Accuracy : 0.9062          
+                                          
+       'Positive' Class : reptile         
+                                          </code></pre>
+</div>
+</div>
+<p>The high cost for false negatives results in a classifier that does not miss any reptile.</p>
+<p><strong>Note:</strong> Using a cost-sensitive classifier is often the best option. Unfortunately, the most classification algorithms (or their implementation) do not have the ability to consider misclassification cost.</p>
+<p>I did not add much comments here as the tutorial was already well explained. I will add more comments when I use this template with a different data set in HW3</p>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
